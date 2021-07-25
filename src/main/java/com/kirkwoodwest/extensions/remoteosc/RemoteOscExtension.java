@@ -91,6 +91,7 @@ public class RemoteOscExtension extends GenericControllerExtension {
     }
     user_parameter_handler.setResolution(resolution);
   }
+  
 
   private void settingDebugOscIn(boolean b) {
     this.debug_osc_in = b;
