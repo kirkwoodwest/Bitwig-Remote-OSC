@@ -11,6 +11,8 @@ import com.bitwig.extension.controller.api.SettableStringValue;
 import com.kirkwoodwest.utils.Array;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class OscHandler {
@@ -48,15 +50,19 @@ public class OscHandler {
       osc_out_address = settting_address_out.get();
     }
 
+    {
+      String in_address = ".";
+      try {
+        in_address = Inet4Address.getLocalHost().getHostAddress();
+      } catch (UnknownHostException e) {
+      }
 
-    host.println("\n-------------------------------------------");
-    host.println("KIRKWOOD OSC Initializing...");
-    host.println("-------------------------------------------\n");
+      host.println("-------");
+      host.println("IN:  " + in_address + ":" + osc_in_port);
+      host.println("OUT: " + osc_out_address+ ":" + osc_out_port);
+      host.println("-------");
+    }
 
-    host.println("IN PORT: " + osc_in_port);
-    host.println("ADDRESS OUT: " + osc_out_address);
-    host.println("OUT PORT: " + osc_out_port);
-    host.println("-------");
     OscModule       osc_module    = host.getOscModule();
     address_space = osc_module.createAddressSpace();
 

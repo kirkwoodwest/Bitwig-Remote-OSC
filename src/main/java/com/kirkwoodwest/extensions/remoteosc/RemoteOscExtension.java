@@ -12,7 +12,8 @@ import com.kirkwoodwest.utils.Log;
 import com.kirkwoodwest.utils.Math;
 import com.kirkwoodwest.utils.osc.OscHandler;
 
-import java.util.Arrays;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 
 public class RemoteOscExtension extends GenericControllerExtension {
   //Class Variables
@@ -27,8 +28,15 @@ public class RemoteOscExtension extends GenericControllerExtension {
   private boolean debug_osc_in;
   private boolean debug_osc_out;
 
-  private final String[] resolution_enum = new String[]{"128","1024","1608"};
+  private final String[] resolution_enum = new String[]{"128","1024","16384"};
   private int resolution;
+  private SettableStringValue setting_target;
+  private String osc_target;
+  private SettableBooleanValue setting_send_values_on_received;
+  private SettableBooleanValue setting_deadzone_enabled;
+  private Signal setting_restart;
+  private SettableBooleanValue setting_zero_pad;
+  private boolean zero_pad;
 
 
   protected RemoteOscExtension(final RemoteOscExtensionDefinition definition, final ControllerHost host) {
@@ -39,6 +47,10 @@ public class RemoteOscExtension extends GenericControllerExtension {
   public void init() {
     host = getHost();
     Log.init(host);
+
+    String version = getExtensionDefinition().getVersion();
+    host.println("\n-------------------------------------------");
+    host.println("Remote OSC " + version + " Initializing...");
 
     osc_handler = new OscHandler(host, true);
 
@@ -55,15 +67,43 @@ public class RemoteOscExtension extends GenericControllerExtension {
     }
 
     {
-      setting_resolution = host.getPreferences().getEnumSetting("Resolution", "User Controls", resolution_enum, resolution_enum[0]);
-      setting_resolution.addValueObserver(this::settingResolution);
+      setting_target = host.getPreferences().getStringSetting("Osc Base target", "OSC Settings", 20, "/user/");
+      osc_target = setting_target.get();
+    }
+
+    {
+      setting_zero_pad = host.getPreferences().getBooleanSetting("Index Zero Padding", "OSC Settings", false);
+      zero_pad = setting_zero_pad.get();
+      setting_zero_pad.addValueObserver(this::settingZeroPaddingEnabled);
+    }
+
+    {
+      setting_resolution = host.getPreferences().getEnumSetting("Resolution", "OSC Settings", resolution_enum, resolution_enum[1]);
+      String resolution_string = setting_resolution.get();
+      resolution = Integer.parseInt(resolution_string);
     }
 
     double number_user_controls =  setting_number_of_user_controls.get();
     int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
     if(user_controls_count<1) user_controls_count = 1;
-    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count);
+    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, resolution);
 
+
+
+    {
+      setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
+      setting_send_values_on_received.addValueObserver(this::settingSendValuesOnReceived);
+    }
+
+    {
+      setting_deadzone_enabled = host.getPreferences().getBooleanSetting("Deadzone Enabled", "OSC Settings", false);
+      setting_deadzone_enabled.addValueObserver(this::settingDeadzoneEnabled);
+    }
+
+
+
+    setting_restart = host.getPreferences().getSignalSetting("Changing OSC Settings Requires Restart...", "Restart","Restart");
+    setting_restart.addSignalObserver(this::settingRestart);
 
     setting_debug_osc_in = host.getPreferences().getBooleanSetting("Debug Osc In", "Osc Debug", false);
     setting_debug_osc_in.addValueObserver(this::settingDebugOscIn);
@@ -71,43 +111,56 @@ public class RemoteOscExtension extends GenericControllerExtension {
     setting_debug_osc_out = host.getPreferences().getBooleanSetting("Debug Osc Out", "Osc Debug", false);
     setting_debug_osc_out.addValueObserver(this::settingDebugOscOut);
 
-    user_parameter_handler.debugModeEnable(debug_osc_in);
 
-    //TODO: update LED states on everything on init.
+
+
+    user_parameter_handler.debugModeEnable(debug_osc_in);
 
     //Always rescan on init.
     //If your reading this... I hope you say hello to a loved one today. <3
-    host.println("Remote OSC Initialized. 0.5");
-    host.showPopupNotification("Remote OSC Initialized. v0.5");
+
+    host.println("Complete.\n---");
+    host.showPopupNotification("Remote OSC " + version + " Initialized.");
   }
 
-  private void settingResolution(String s) {
-    if (s.equals(resolution_enum[1])){
-      resolution = 1024;
-    } else if (s.equals(resolution_enum[2])){
-      resolution = 16384;
-    } else {
-      resolution = 127;
-    }
-    user_parameter_handler.setResolution(resolution);
+
+  private void settingRestart() {
+    host.restart();
+  }
+
+  private void settingDeadzoneEnabled(boolean b) {
+    user_parameter_handler.setDeadzoneEnabled(b);
+  }
+
+  private void settingSendValuesOnReceived(boolean b) {
+    user_parameter_handler.setSendValuesAfterReceived(b);
   }
   
-
   private void settingDebugOscIn(boolean b) {
     this.debug_osc_in = b;
     user_parameter_handler.debugModeEnable(debug_osc_in);
+    if (b==true){
+      host.println("debug osc in enabled.");
+    } else {
+      host.println("debug osc in disabled.");
+    }
   }
 
   private void settingDebugOscOut(boolean b) {
     this.debug_osc_out = b;
     osc_handler.debugModeEnable(debug_osc_out);
+    if (b==true){
+      host.println("debug osc out enabled.");
+    } else {
+      host.println("debug osc out disabled.");
+    }
   }
 
   @Override
   public void exit() {
     // TODO: Perform any cleanup once the driver exits
     // For now just show a popup notification for verification that it is no longer running.
-    getHost().showPopupNotification("KIRKWOOD OSC Exited");
+    getHost().showPopupNotification("Remote OSC Exited");
   }
 
   @Override
