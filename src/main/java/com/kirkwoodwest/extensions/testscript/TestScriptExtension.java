@@ -6,10 +6,8 @@
 package com.kirkwoodwest.extensions.testscript;
 import com.bitwig.extension.controller.api.*;
 import com.bitwig.extension.controller.ControllerExtension;
-import com.kirkwoodwest.hardware.RelativeHardwareValueListener;
 
-
-public class TestScriptExtension extends ControllerExtension implements RelativeHardwareValueListener {
+public class TestScriptExtension extends ControllerExtension {
 
   private ControllerHost host;
 
@@ -33,10 +31,5 @@ public class TestScriptExtension extends ControllerExtension implements Relative
   @Override
   public void flush() {
     // TODO Send any updates you need here.
-  }
-
-  @Override
-  public void knob_updated(int id, double value) {
-    host.println("ID: "+ id + "VALUE: " + value);
   }
 }
