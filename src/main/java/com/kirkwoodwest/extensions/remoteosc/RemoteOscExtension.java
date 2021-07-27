@@ -72,9 +72,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
     }
 
     {
-      setting_zero_pad = host.getPreferences().getBooleanSetting("Index Zero Padding", "OSC Settings", false);
+      setting_zero_pad = host.getPreferences().getBooleanSetting("Index Zero Padding (i.e. user/001, user/002)", "OSC Settings", false);
       zero_pad = setting_zero_pad.get();
-      setting_zero_pad.addValueObserver(this::settingZeroPaddingEnabled);
     }
 
     {
@@ -95,10 +94,10 @@ public class RemoteOscExtension extends GenericControllerExtension {
       setting_send_values_on_received.addValueObserver(this::settingSendValuesOnReceived);
     }
 
-    {
-      setting_deadzone_enabled = host.getPreferences().getBooleanSetting("Deadzone Enabled", "OSC Settings", false);
-      setting_deadzone_enabled.addValueObserver(this::settingDeadzoneEnabled);
-    }
+//    {
+//      setting_deadzone_enabled = host.getPreferences().getBooleanSetting("Deadzone Enabled", "OSC Settings", false);
+//      setting_deadzone_enabled.addValueObserver(this::settingDeadzoneEnabled);
+//    }
 
 
 

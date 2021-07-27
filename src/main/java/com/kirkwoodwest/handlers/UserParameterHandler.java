@@ -12,6 +12,8 @@ public class UserParameterHandler {
 
     private final UserControlBank user_controls;
     private final int user_controls_count;
+    private final String[] user_controls_targets;
+
     private int[] user_controls_values;
     private boolean[] user_controls_values_dirty;
     private String[] user_controls_names;
@@ -24,30 +26,46 @@ public class UserParameterHandler {
     private double deadzone_value;
     private boolean deadzone_enabled = false;
     private boolean index_padding_enabled;
+    private int index_padding_count;
 
     public UserParameterHandler (ControllerHost host, OscHandler osc_handler, int user_controls_count, String osc_address, boolean index_padding_enabled, int resolution){
         this.osc_handler = osc_handler;
         this.host = host;
         this.user_controls_count = user_controls_count;
         this.osc_address = osc_address;
-        this.index_padding_enabled = index_padding_enabled;
         this.resolution = resolution;
+        this.index_padding_enabled = index_padding_enabled;
+
+        if(index_padding_enabled) {
+            String padding_string = String.valueOf(user_controls_count);
+            this.index_padding_count =  padding_string.length();
+        }
 
         user_controls = host.createUserControls(user_controls_count);
         user_controls_values = new int[user_controls_count];
+        user_controls_targets = new String[user_controls_count];
         user_controls_names = new String[user_controls_count];
         user_controls_values_dirty = new boolean[user_controls_count];
 
+
+        osc_handler.registerDefaultCallback(this::basicOscCallbak);
         for(int i=0;i<user_controls_count;i++){
             Parameter control = user_controls.getControl(i);
             user_controls_values_dirty[i] = true;
             control.value().markInterested();
             control.name().markInterested();
             final int osc_index = i;
-            if(osc_address.isEmpty()) continue;
             String index_string = getIndexString(i);
+            user_controls_targets[i] = index_string;
+            if(osc_address.isEmpty()) continue;
             osc_handler.registerOscCallback(osc_address + index_string ,"User Parameter "+ index_string + " value", (OscConnection osc_connection, OscMessage osc_message)->this.updateParameter(osc_connection, osc_message, osc_index));
 
+        }
+    }
+
+    private void basicOscCallbak(OscConnection oscConnection, OscMessage oscMessage) {
+        if (debug_mode_enabled){
+            host.println("osc message:" + oscMessage.getAddressPattern() + " : " + oscMessage.getArguments());
         }
     }
 
@@ -58,11 +76,13 @@ public class UserParameterHandler {
             double user_control_value = control.value().getAsDouble();
             String user_control_name = control.name().get();
 
-            int user_control_value_int = (int) java.lang.Math.round(user_control_value * (resolution-1));
 
-            //if(java.lang.Math.abs(user_controls_values[i]-user_control_value) <= 0.0000001) {
+            double rescaled_message_value = Math.map(user_control_value, 0, 1 , 1, resolution);
+            rescaled_message_value = rescaled_message_value -1;
+            int user_control_value_int = (int) java.lang.Math.round(rescaled_message_value);
+
             if ( user_control_value_int != user_controls_values[i] || user_controls_values_dirty[i] == true){
-                String target = this.osc_address + getIndexString(i);
+                String target = this.osc_address + user_controls_targets[i];
                 osc_handler.addMessageToQueue(target, (int) user_control_value_int);
                 user_controls_values[i] = user_control_value_int;
                 user_controls_values_dirty[i] = false;
@@ -80,12 +100,7 @@ public class UserParameterHandler {
     }
 
     public String getIndexString(int index){
-        if(index_padding_enabled) {
-            String resolution_string = String.valueOf(resolution);
-            int len = resolution_string.length() -1;
-            return String.format("%0" + len + "d", index);
-        }
-
+        if(index_padding_enabled) return Math.padInt(this.index_padding_count , index);
         return String.valueOf(index);
     }
 
@@ -115,18 +130,21 @@ public class UserParameterHandler {
         }
 
         message_value = Math.valueLimit(message_value,0,resolution-1); //limit the message
-        double message_value_float  = message_value/( (double) resolution-1); //translated to float.
-
+        double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 1, resolution);
+        rescaled_message_value = rescaled_message_value -1;
+        double message_value_double  = rescaled_message_value/( (double) resolution); //translated to float.
+        host.println("message_value_double: : " + message_value_double);
+        /*
         if(deadzone_enabled) {
             if (java.lang.Math.abs(message_value_float - 0.5) <= this.deadzone_value) message_value_float = 0.5;
         }
-
+*/
         Parameter control = user_controls.getControl(osc_index);
         SettableRangedValue value = control.value();
         double target_value = value.getAsDouble();
-        int target_value_int = (int) java.lang.Math.round(target_value * (resolution-1));
+        int target_value_int = (int) java.lang.Math.round(target_value * (resolution));
         if(target_value_int != message_value) {
-            value.set(message_value_float);
+            value.set(message_value_double);
             user_controls_values[osc_index] = message_value;
 
             if(send_values_after_received) {

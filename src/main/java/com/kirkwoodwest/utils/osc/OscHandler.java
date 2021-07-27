@@ -12,6 +12,7 @@ import com.kirkwoodwest.utils.Array;
 
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -53,7 +54,7 @@ public class OscHandler {
     {
       String in_address = ".";
       try {
-        in_address = Inet4Address.getLocalHost().getHostAddress();
+        in_address = InetAddress.getLocalHost().toString();
       } catch (UnknownHostException e) {
       }
 

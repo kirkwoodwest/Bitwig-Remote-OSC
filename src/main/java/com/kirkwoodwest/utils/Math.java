@@ -33,4 +33,8 @@ public class Math {
     bd = bd.setScale(places, RoundingMode.HALF_UP);
     return bd.doubleValue();
   }
+
+  public static String padInt(int padding, int value){
+    return String.format("%0" + padding + "d", value);
+  }
 }

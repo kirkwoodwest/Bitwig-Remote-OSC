@@ -12,7 +12,6 @@ D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\Sketchpad.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\extensions\remoteosc\RemoteOscExtension.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\hardware\RelativeHardwareValueListener.java
-D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\osc\Osc.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\extensions\remoteosc\RemoteOscExtensionDefinition.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\led\LedOscString.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\Midi.java
@@ -20,7 +19,6 @@ D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\led\LedCCRanged.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\led\LedHandler.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\hardware\HardwareMidiMix.java
-D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\osc\OscGui.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\hardware\HardwareLaunchControlXL.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\hardware\HardwareBasic.java
 D:\Programming\Bitwig Scripting\Bitwig-Remote-OSC\src\main\java\com\kirkwoodwest\utils\led\Led.java
