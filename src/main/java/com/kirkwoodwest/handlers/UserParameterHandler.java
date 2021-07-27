@@ -133,7 +133,8 @@ public class UserParameterHandler {
         double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 1, resolution);
         rescaled_message_value = rescaled_message_value -1;
         double message_value_double  = rescaled_message_value/( (double) resolution); //translated to float.
-        host.println("message_value_double: : " + message_value_double);
+        
+
         /*
         if(deadzone_enabled) {
             if (java.lang.Math.abs(message_value_float - 0.5) <= this.deadzone_value) message_value_float = 0.5;
