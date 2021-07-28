@@ -77,7 +77,7 @@ public class UserParameterHandler {
             String user_control_name = control.name().get();
 
 
-            double rescaled_message_value = Math.map(user_control_value, 0, 1 , 1, resolution);
+            double rescaled_message_value = Math.map(user_control_value, 0, 1 , 0, resolution-1);
             rescaled_message_value = rescaled_message_value -1;
             int user_control_value_int = (int) java.lang.Math.round(rescaled_message_value);
 
@@ -130,10 +130,13 @@ public class UserParameterHandler {
         }
 
         message_value = Math.valueLimit(message_value,0,resolution-1); //limit the message
-        double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 1, resolution);
-        rescaled_message_value = rescaled_message_value -1;
-        double message_value_double  = rescaled_message_value/( (double) resolution); //translated to float.
-        
+      //  double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 1, resolution);
+        //rescaled_message_value = rescaled_message_value -1;
+        //double message_value_double  = rescaled_message_value/( (double) resolution); //translated to float.
+
+        double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 0, 1);
+        double message_value_double = rescaled_message_value;
+
 
         /*
         if(deadzone_enabled) {
