@@ -11,6 +11,7 @@ import com.bitwig.extension.controller.api.SettableStringValue;
 import com.kirkwoodwest.utils.Array;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 public class OscHandler {
 
   private final ControllerHost host;
+  private boolean failed_osc_setup;
   private SettableRangedValue setting_port_in;
   private SettableStringValue settting_address_out;
   private SettableRangedValue setting_port_out;
@@ -40,7 +42,7 @@ public class OscHandler {
   public OscHandler(ControllerHost host, boolean setup_preferences){
     this.host = host;
 
-
+    this.failed_osc_setup = false;
     if (setup_preferences == true) {
       setting_port_in = host.getPreferences().getNumberSetting("port in", "OSC Settings", 8000,9999, 1, "" , 8010);
       settting_address_out = host.getPreferences().getStringSetting("target address", "OSC Settings", 20, "192.168.0.1");
@@ -56,6 +58,7 @@ public class OscHandler {
       try {
         in_address = InetAddress.getLocalHost().toString();
       } catch (UnknownHostException e) {
+        this.failed_osc_setup = true;
       }
 
       host.println("-------");
@@ -66,9 +69,15 @@ public class OscHandler {
 
     OscModule       osc_module    = host.getOscModule();
     address_space = osc_module.createAddressSpace();
-
-    osc_connection = osc_module.connectToUdpServer(osc_out_address, osc_out_port, address_space);
-    osc_module.createUdpServer(osc_in_port, address_space);
+    try {
+      osc_connection = osc_module.connectToUdpServer(osc_out_address, osc_out_port, address_space);
+      osc_module.createUdpServer(osc_in_port, address_space);
+    } catch (Exception e) {
+      host.println("WARNING:: Ports Not Initialized.");
+      host.println(e.toString());
+      host.println("-------");
+      this.failed_osc_setup = true;
+    }
   }
 
   public void registerOscCallback(String target, String description, OscMethodCallback callback){
@@ -123,5 +132,9 @@ public class OscHandler {
 
   public void debugModeEnable(boolean b) {
     this.debug_osc_out = b;
+  }
+
+  public boolean init_success() {
+    return !this.failed_osc_setup;
   }
 }

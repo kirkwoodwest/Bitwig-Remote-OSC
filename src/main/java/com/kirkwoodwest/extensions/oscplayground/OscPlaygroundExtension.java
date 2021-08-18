@@ -3,20 +3,16 @@
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 
-package com.kirkwoodwest.extensions.remoteosc;
+package com.kirkwoodwest.extensions.oscplayground;
 
 import com.bitwig.extension.controller.api.*;
 import com.kirkwoodwest.bitwig.extension.GenericControllerExtension;
 import com.kirkwoodwest.handlers.UserParameterHandler;
-import com.kirkwoodwest.handlers.VUMeterBank;
 import com.kirkwoodwest.utils.Log;
 import com.kirkwoodwest.utils.Math;
 import com.kirkwoodwest.utils.osc.OscHandler;
 
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
-
-public class RemoteOscExtension extends GenericControllerExtension {
+public class OscPlaygroundExtension extends GenericControllerExtension {
   //Class Variables
   private ControllerHost host;
 
@@ -38,10 +34,9 @@ public class RemoteOscExtension extends GenericControllerExtension {
   private Signal setting_restart;
   private SettableBooleanValue setting_zero_pad;
   private boolean zero_pad;
-  private VUMeterBank vu_meter_bank;
 
 
-  protected RemoteOscExtension(final RemoteOscExtensionDefinition definition, final ControllerHost host) {
+  protected OscPlaygroundExtension(final OscPlaygroundExtensionDefinition definition, final ControllerHost host) {
     super(definition, host);
   }
 
@@ -89,6 +84,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
     if(user_controls_count<1) user_controls_count = 1;
     user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, resolution);
 
+
+
     {
       setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
       setting_send_values_on_received.addValueObserver(this::settingSendValuesOnReceived);
@@ -98,6 +95,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
 //      setting_deadzone_enabled = host.getPreferences().getBooleanSetting("Deadzone Enabled", "OSC Settings", false);
 //      setting_deadzone_enabled.addValueObserver(this::settingDeadzoneEnabled);
 //    }
+
+
 
     setting_restart = host.getPreferences().getSignalSetting("Changing OSC Settings Requires Restart...", "Restart","Restart");
     setting_restart.addSignalObserver(this::settingRestart);
@@ -110,20 +109,25 @@ public class RemoteOscExtension extends GenericControllerExtension {
 
 
 
+
     user_parameter_handler.debugModeEnable(debug_osc_in);
-    
-    vu_meter_bank = new VUMeterBank(host, osc_handler);
+
+
+
+    CursorTrack cursor_track = host.createCursorTrack("cursor Track", "Cursor Track", 1, 1, true);
+    cursor_track.addVuMeterObserver(1023, -1,false, this::reportVu);
+
 
     //Always rescan on init.
     //If your reading this... I hope you say hello to a loved one today. <3
 
     host.println("Complete.\n---");
+    host.showPopupNotification("Remote OSC " + version + " Initialized.");
+  }
 
-    if (osc_handler.init_success()) {
-      host.showPopupNotification("Remote OSC " + version + " Initialized.");
-    } else {
-      host.showPopupNotification("Remote OSC " + version + " Failed Init. Check OSC Settings and Log");
-    }
+  private void reportVu(int i) {
+    String target = "/vu_meter";
+    osc_handler.addMessageToQueue(target, (int) i);
   }
 
 
