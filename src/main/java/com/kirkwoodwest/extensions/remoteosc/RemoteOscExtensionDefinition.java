@@ -30,7 +30,7 @@ public class RemoteOscExtensionDefinition extends ControllerExtensionDefinition
    @Override
    public String getVersion()
    {
-      return "0.9";
+      return "0.9.6";
    }
 
    @Override
@@ -60,13 +60,13 @@ public class RemoteOscExtensionDefinition extends ControllerExtensionDefinition
    @Override
    public int getNumMidiInPorts()
    {
-      return 0;
+      return 1;
    }
 
    @Override
    public int getNumMidiOutPorts()
    {
-      return 0;
+      return 1;
    }
 
    @Override
