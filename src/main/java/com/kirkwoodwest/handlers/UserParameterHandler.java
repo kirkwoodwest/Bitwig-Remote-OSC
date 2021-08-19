@@ -76,7 +76,6 @@ public class UserParameterHandler {
             double user_control_value = control.value().getAsDouble();
             String user_control_name = control.name().get();
 
-
             double rescaled_message_value = Math.map(user_control_value, 0, 1 , 0, resolution-1);
             rescaled_message_value = rescaled_message_value -1;
             int user_control_value_int = (int) java.lang.Math.round(rescaled_message_value);
@@ -87,15 +86,6 @@ public class UserParameterHandler {
                 user_controls_values[i] = user_control_value_int;
                 user_controls_values_dirty[i] = false;
             }
-
-            /*
-
-            if(!user_control_name.equals(user_controls_names[i])) {
-                String target = "/user/" + i +"/name";
-                osc_handler.addMessageToQueue("/user/" + i +"/name", user_control_name);
-                user_controls_names[i] = user_control_name;
-            }
-            */
         }
     }
 
@@ -130,19 +120,10 @@ public class UserParameterHandler {
         }
 
         message_value = Math.valueLimit(message_value,0,resolution-1); //limit the message
-      //  double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 1, resolution);
-        //rescaled_message_value = rescaled_message_value -1;
-        //double message_value_double  = rescaled_message_value/( (double) resolution); //translated to float.
 
         double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 0, 1);
         double message_value_double = rescaled_message_value;
 
-
-        /*
-        if(deadzone_enabled) {
-            if (java.lang.Math.abs(message_value_float - 0.5) <= this.deadzone_value) message_value_float = 0.5;
-        }
-*/
         Parameter control = user_controls.getControl(osc_index);
         SettableRangedValue value = control.value();
         double target_value = value.getAsDouble();
@@ -159,7 +140,6 @@ public class UserParameterHandler {
         if (this.debug_mode_enabled) {
             host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + message_value );
         }
-
     }
 
     public void setOsc_address(String osc_address) {
@@ -167,7 +147,7 @@ public class UserParameterHandler {
         host.println("User Parameter Handler OSC TARGET: " + osc_address);
     }
 
-    public  void setSendValuesAfterReceived(boolean b){
+    public void setSendValuesAfterReceived(boolean b){
         send_values_after_received = b;
     }
 
