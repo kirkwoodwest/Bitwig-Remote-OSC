@@ -48,7 +48,7 @@ public class UserParameterHandler {
         user_controls_values_dirty = new boolean[user_controls_count];
 
 
-        osc_handler.registerDefaultCallback(this::basicOscCallbak);
+        osc_handler.registerDefaultCallback(this::basicOscCallback);
         for(int i=0;i<user_controls_count;i++){
             Parameter control = user_controls.getControl(i);
             user_controls_values_dirty[i] = true;
@@ -63,7 +63,7 @@ public class UserParameterHandler {
         }
     }
 
-    private void basicOscCallbak(OscConnection oscConnection, OscMessage oscMessage) {
+    private void basicOscCallback(OscConnection oscConnection, OscMessage oscMessage) {
         if (debug_mode_enabled){
             host.println("osc message:" + oscMessage.getAddressPattern() + " : " + oscMessage.getArguments());
         }
@@ -77,7 +77,7 @@ public class UserParameterHandler {
             String user_control_name = control.name().get();
 
             double rescaled_message_value = Math.map(user_control_value, 0, 1 , 0, resolution-1);
-            rescaled_message_value = rescaled_message_value -1;
+            rescaled_message_value = rescaled_message_value;
             int user_control_value_int = (int) java.lang.Math.round(rescaled_message_value);
 
             if ( user_control_value_int != user_controls_values[i] || user_controls_values_dirty[i] == true){
@@ -121,13 +121,19 @@ public class UserParameterHandler {
 
         message_value = Math.valueLimit(message_value,0,resolution-1); //limit the message
 
-        double rescaled_message_value = Math.map(message_value, 0.0, resolution - 1.0, 0, 1);
-        double message_value_double = rescaled_message_value;
+        int resolution_half = (int) java.lang.Math.floor(resolution * 0.5);
+        double message_value_double = 0;
+
+        if (message_value == resolution_half) {
+            message_value_double = 0.5;
+        } else {
+            message_value_double = Math.map(message_value, 0.0, resolution - 1.0, 0, 1);
+        }
 
         Parameter control = user_controls.getControl(osc_index);
         SettableRangedValue value = control.value();
         double target_value = value.getAsDouble();
-        int target_value_int = (int) java.lang.Math.round(target_value * (resolution));
+        int target_value_int = (int) java.lang.Math.round(target_value * (resolution - 1.0));
         if(target_value_int != message_value) {
             value.set(message_value_double);
             user_controls_values[osc_index] = message_value;

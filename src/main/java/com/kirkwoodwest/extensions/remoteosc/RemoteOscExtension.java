@@ -15,6 +15,7 @@ import com.kirkwoodwest.utils.osc.OscHandler;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 public class RemoteOscExtension extends GenericControllerExtension {
   //Class Variables
@@ -29,7 +30,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
   private boolean debug_osc_in;
   private boolean debug_osc_out;
 
-  private final String[] resolution_enum = new String[]{"128","1024","16384"};
+  private final String[] resolution_enum = new String[]{"0-127","0-1023","0-16383"};
+  private final int[] resolution_values = new int[]{128,1024,0-16383};
   private int resolution;
   private SettableStringValue setting_target;
   private String osc_target;
@@ -39,6 +41,10 @@ public class RemoteOscExtension extends GenericControllerExtension {
   private SettableBooleanValue setting_zero_pad;
   private boolean zero_pad;
   private VUMeterBank vu_meter_bank;
+
+  private SettableBooleanValue setting_vu_meter_enabled;
+  private SettableBooleanValue setting_vu_meter_peak;
+  private SettableBooleanValue setting_vu_meter_rms;
 
 
   protected RemoteOscExtension(final RemoteOscExtensionDefinition definition, final ControllerHost host) {
@@ -81,7 +87,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
     {
       setting_resolution = host.getPreferences().getEnumSetting("Resolution", "OSC Settings", resolution_enum, resolution_enum[1]);
       String resolution_string = setting_resolution.get();
-      resolution = Integer.parseInt(resolution_string);
+      int index = Arrays.asList(resolution_enum).indexOf(resolution_string);
+      resolution = resolution_values[index];
     }
 
     double number_user_controls =  setting_number_of_user_controls.get();
@@ -108,11 +115,21 @@ public class RemoteOscExtension extends GenericControllerExtension {
     setting_debug_osc_out = host.getPreferences().getBooleanSetting("Debug Osc Out", "Osc Debug", false);
     setting_debug_osc_out.addValueObserver(this::settingDebugOscOut);
 
+    setting_vu_meter_enabled = host.getPreferences().getBooleanSetting("VU Meter Enabled", "VU Meter", false);
 
+    setting_vu_meter_peak = host.getPreferences().getBooleanSetting("VU Meter Peak Enabled", "VU Meter", false);
+    setting_vu_meter_peak.addValueObserver(this::settingVuMeterPeakOutput);
+
+    setting_vu_meter_rms = host.getPreferences().getBooleanSetting("VU Meter RMS Enabled", "VU Meter", false);
+    setting_vu_meter_rms.addValueObserver(this::settingVuMeterRmsOutput);
 
     user_parameter_handler.debugModeEnable(debug_osc_in);
+
+    boolean vu_meter_enabled = setting_vu_meter_enabled.getAsBoolean();
+    boolean vu_peak_enabled = setting_vu_meter_peak.getAsBoolean();
+    boolean vu_rms_enabled = setting_vu_meter_rms.getAsBoolean();
     
-    vu_meter_bank = new VUMeterBank(host, osc_handler);
+    vu_meter_bank = new VUMeterBank(host, osc_handler, vu_meter_enabled,vu_peak_enabled, vu_rms_enabled);
 
     //Always rescan on init.
     //If your reading this... I hope you say hello to a loved one today. <3
@@ -124,6 +141,14 @@ public class RemoteOscExtension extends GenericControllerExtension {
     } else {
       host.showPopupNotification("Remote OSC " + version + " Failed Init. Check OSC Settings and Log");
     }
+  }
+
+  private void settingVuMeterRmsOutput(boolean b) {
+    vu_meter_bank.setRmsOutput(b);
+  }
+
+  private void settingVuMeterPeakOutput(boolean b) {
+    vu_meter_bank.setPeakOutput(b);
   }
 
 
