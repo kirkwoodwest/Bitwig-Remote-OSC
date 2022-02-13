@@ -58,10 +58,7 @@ public class RemoteOscExtensionDefinition extends ControllerExtensionDefinition
    }
 
    @Override
-   public int getNumMidiInPorts()
-   {
-      return 1;
-   }
+   public int getNumMidiInPorts() { return 1; }
 
    @Override
    public int getNumMidiOutPorts()

@@ -56,6 +56,9 @@ public class RemoteOscExtension extends GenericControllerExtension {
     host = getHost();
     Log.init(host);
 
+    MidiIn input_port = host.getMidiInPort(0); //host.getMidiOutPort(0);
+    input_port.createNoteInput("RemoteOscInput","??????");
+
     String version = getExtensionDefinition().getVersion();
     host.println("\n-------------------------------------------");
     host.println("Remote OSC " + version + " Initializing...");
