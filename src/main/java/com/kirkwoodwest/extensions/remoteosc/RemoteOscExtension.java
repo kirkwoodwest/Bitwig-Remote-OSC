@@ -30,8 +30,6 @@ public class RemoteOscExtension extends GenericControllerExtension {
   private boolean debug_osc_in;
   private boolean debug_osc_out;
 
-  private final String[] resolution_enum = new String[]{"0-127","0-1023","0-16383"};
-  private final int[] resolution_values = new int[]{128,1024,0-16383};
   private int resolution;
   private SettableStringValue setting_target;
   private String osc_target;
@@ -56,7 +54,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
     host = getHost();
     Log.init(host);
 
-    MidiIn input_port = host.getMidiInPort(0); //host.getMidiOutPort(0);
+    //Set up midi ports for mapping any midi data that you'd want in this same extension.
+    MidiIn input_port = host.getMidiInPort(0);
     input_port.createNoteInput("RemoteOscInput","??????");
 
     String version = getExtensionDefinition().getVersion();
@@ -87,27 +86,15 @@ public class RemoteOscExtension extends GenericControllerExtension {
       zero_pad = setting_zero_pad.get();
     }
 
-    {
-      setting_resolution = host.getPreferences().getEnumSetting("Resolution", "OSC Settings", resolution_enum, resolution_enum[1]);
-      String resolution_string = setting_resolution.get();
-      int index = Arrays.asList(resolution_enum).indexOf(resolution_string);
-      resolution = resolution_values[index];
-    }
-
     double number_user_controls =  setting_number_of_user_controls.get();
     int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
     if(user_controls_count<1) user_controls_count = 1;
-    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, resolution);
+    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad);
 
     {
       setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
       setting_send_values_on_received.addValueObserver(this::settingSendValuesOnReceived);
     }
-
-//    {
-//      setting_deadzone_enabled = host.getPreferences().getBooleanSetting("Deadzone Enabled", "OSC Settings", false);
-//      setting_deadzone_enabled.addValueObserver(this::settingDeadzoneEnabled);
-//    }
 
     setting_restart = host.getPreferences().getSignalSetting("Changing OSC Settings Requires Restart...", "Restart","Restart");
     setting_restart.addSignalObserver(this::settingRestart);

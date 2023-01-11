@@ -30,7 +30,7 @@ public class RemoteOscExtensionDefinition extends ControllerExtensionDefinition
    @Override
    public String getVersion()
    {
-      return "0.9.7";
+      return "1.0";
    }
 
    @Override
@@ -54,7 +54,7 @@ public class RemoteOscExtensionDefinition extends ControllerExtensionDefinition
    @Override
    public int getRequiredAPIVersion()
    {
-      return 13;
+      return 17;
    }
 
    @Override
