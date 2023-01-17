@@ -82,7 +82,7 @@ public class RemoteOscExtension extends GenericControllerExtension {
     }
 
     {
-      setting_zero_pad = host.getPreferences().getBooleanSetting("Index Zero Padding (i.e. user/001, user/002)", "OSC Settings", false);
+      setting_zero_pad = host.getPreferences().getBooleanSetting("Index Zero Padding (i.e. user/0001, user/0002)", "OSC Settings", true);
       zero_pad = setting_zero_pad.get();
     }
 

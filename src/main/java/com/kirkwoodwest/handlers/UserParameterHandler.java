@@ -34,7 +34,7 @@ public class UserParameterHandler {
         this.index_padding_enabled = index_padding_enabled;
 
         if(index_padding_enabled) {
-            this.index_padding_count =  3;
+            this.index_padding_count =  4;
         }
 
         user_controls = host.createUserControls(user_controls_count);
