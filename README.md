@@ -12,20 +12,20 @@ You can now choose between Values Only or have also displayed values and paramet
 
 ## Up to 1024 User Parameters
 User Parameters are the right click mapped values.
-`/user/0001/value` `,f`
-`/user/0002/value` `,f` 
+- `/user/0001/value` `,f`
+- `/user/0002/value` `,f` 
 
 ### Standard Values Mode
-`/user/0001/value` `,f`
-`/user/0001/name` `,s`
-`/user/0001/display_value` `,s`
+- `/user/0001/value` `,f`
+- `/user/0001/name` `,s`
+- `/user/0001/display_value` `,s`
 
 ### Values Only mode
-`/user/0001` `,f`
+- `/user/0001` `,f`
 
 ## VU Meters
-`/track/1/vu/peak`
-`/track/1/vu/rms`
+- `/track/1/vu/peak`
+- `/track/1/vu/rms`
 
 ## Paths
 
