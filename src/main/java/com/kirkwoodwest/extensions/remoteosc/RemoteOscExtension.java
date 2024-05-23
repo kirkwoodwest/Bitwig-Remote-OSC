@@ -38,11 +38,14 @@ public class RemoteOscExtension extends GenericControllerExtension {
   private Signal setting_restart;
   private SettableBooleanValue setting_zero_pad;
   private boolean zero_pad;
+  private boolean values_only;
   private VUMeterBank vu_meter_bank;
 
   private SettableBooleanValue setting_vu_meter_enabled;
   private SettableBooleanValue setting_vu_meter_peak;
   private SettableBooleanValue setting_vu_meter_rms;
+  private SettableBooleanValue setting_values_only_mode;
+
 
 
   protected RemoteOscExtension(final RemoteOscExtensionDefinition definition, final ControllerHost host) {
@@ -86,10 +89,15 @@ public class RemoteOscExtension extends GenericControllerExtension {
       zero_pad = setting_zero_pad.get();
     }
 
+    {
+      setting_values_only_mode = host.getPreferences().getBooleanSetting("Values Only Mode", "OSC Settings", true);
+      values_only = setting_values_only_mode.get();
+    }
+
     double number_user_controls =  setting_number_of_user_controls.get();
     int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
     if(user_controls_count<1) user_controls_count = 1;
-    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad);
+    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, values_only);
 
     {
       setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
@@ -144,10 +152,6 @@ public class RemoteOscExtension extends GenericControllerExtension {
 
   private void settingRestart() {
     host.restart();
-  }
-
-  private void settingDeadzoneEnabled(boolean b) {
-    user_parameter_handler.setDeadzoneEnabled(b);
   }
 
   private void settingSendValuesOnReceived(boolean b) {

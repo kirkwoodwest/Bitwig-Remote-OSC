@@ -76,7 +76,7 @@ public class OscPlaygroundExtension extends GenericControllerExtension {
     double number_user_controls =  setting_number_of_user_controls.get();
     int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
     if(user_controls_count<1) user_controls_count = 1;
-    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad);
+    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, true);
 
     {
       setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
@@ -127,9 +127,6 @@ public class OscPlaygroundExtension extends GenericControllerExtension {
     host.restart();
   }
 
-  private void settingDeadzoneEnabled(boolean b) {
-    user_parameter_handler.setDeadzoneEnabled(b);
-  }
 
   private void settingSendValuesOnReceived(boolean b) {
     user_parameter_handler.setSendValuesAfterReceived(b);

@@ -6,127 +6,134 @@ import com.bitwig.extension.controller.api.*;
 import com.kirkwoodwest.utils.Math;
 import com.kirkwoodwest.utils.osc.OscHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserParameterHandler {
-    private final OscHandler osc_handler;
-    private final ControllerHost host;
+  private final OscHandler oscHandler;
+  private final ControllerHost host;
 
-    private final UserControlBank user_controls;
-    private final int user_controls_count;
-    private final String[] user_controls_targets;
+  private final UserControlBank userControls;
+  private final int userControlsCount;
 
-    private double[] user_controls_values;
-    private boolean[] user_controls_values_dirty;
+  
+  private final List<UserParameterData> userParameterDataList = new ArrayList<>();
 
-    private boolean debug_mode_enabled;
-    private String osc_address;
+  private boolean debug_mode_enabled;
+  private String oscAddress;
 
-    private boolean send_values_after_received = false;
-    private double deadzone_value;
-    private boolean deadzone_enabled = false;
-    private boolean index_padding_enabled;
-    private int index_padding_count;
+  private boolean send_values_after_received = false;
+  private boolean indexPaddingEnabled;
+  private int indexPaddingCount;
+  private boolean valuesOnlyMode = true;
 
-    public UserParameterHandler (ControllerHost host, OscHandler osc_handler, int user_controls_count, String osc_address, boolean index_padding_enabled){
-        this.osc_handler = osc_handler;
-        this.host = host;
-        this.user_controls_count = user_controls_count;
-        this.osc_address = osc_address;
-        this.index_padding_enabled = index_padding_enabled;
+  public UserParameterHandler(ControllerHost host, OscHandler oscHandler, int numUserControls, String oscPath, boolean indexPaddingEnabled, boolean valuesOnlyMode) {
+    this.oscHandler = oscHandler;
+    this.host = host;
+    this.userControlsCount = numUserControls;
+    this.oscAddress = oscPath;
+    this.indexPaddingEnabled = indexPaddingEnabled;
+    this.valuesOnlyMode = valuesOnlyMode;
 
-        if(index_padding_enabled) {
-            this.index_padding_count =  4;
+    if (indexPaddingEnabled) {
+      this.indexPaddingCount = 4;
+    }
+
+    userControls = host.createUserControls(numUserControls);
+    oscHandler.registerDefaultCallback(this::basicOscCallback);
+
+    for (int i = 0; i < numUserControls; i++) {
+      final int osc_index = i;
+      Parameter parameter = userControls.getControl(i);
+      String index_string = getIndexString(i);
+      String path = oscPath + index_string;
+
+      UserParameterData userParameterData = new UserParameterData(parameter, "", 0.0, "", path, valuesOnlyMode);
+      userParameterDataList.add(userParameterData);
+
+      if (oscPath.isEmpty()) continue;
+      oscHandler.registerOscCallback(userParameterData.getPathValue(), "User Parameter " + index_string + " value", (OscConnection osc_connection, OscMessage osc_message) -> this.updateParameter(osc_connection, osc_message, osc_index));
+    }
+  }
+
+
+  private void basicOscCallback(OscConnection oscConnection, OscMessage oscMessage) {
+    if (debug_mode_enabled) {
+      host.println("osc message:" + oscMessage.getAddressPattern() + " : " + oscMessage.getArguments());
+    }
+  }
+
+  public void refresh() {
+    //Loop thru controls and determine if anything changed, update via osc if so...
+
+    userParameterDataList.forEach(userParameterData -> {
+      if (userParameterData.isValueDirty()) {
+        String path = userParameterData.getPathValue();
+        oscHandler.addMessageToQueue(path, userParameterData.getValue().floatValue());
+        userParameterData.clearValueDirty();
+      }
+      if(!valuesOnlyMode){
+        if (userParameterData.isNameDirty()) {
+          String path = userParameterData.getPathName();
+          oscHandler.addMessageToQueue(path, userParameterData.getName());
+          userParameterData.clearNameDirty();
         }
 
-        user_controls = host.createUserControls(user_controls_count);
-        user_controls_values = new double[user_controls_count];
-        user_controls_targets = new String[user_controls_count];
-        user_controls_values_dirty = new boolean[user_controls_count];
-
-
-        osc_handler.registerDefaultCallback(this::basicOscCallback);
-        for(int i=0;i<user_controls_count;i++){
-            Parameter control = user_controls.getControl(i);
-            user_controls_values_dirty[i] = true;
-            control.value().markInterested();
-            control.name().markInterested();
-            final int osc_index = i;
-            String index_string = getIndexString(i);
-            user_controls_targets[i] = index_string;
-            if(osc_address.isEmpty()) continue;
-            osc_handler.registerOscCallback(osc_address + index_string ,"User Parameter "+ index_string + " value", (OscConnection osc_connection, OscMessage osc_message)->this.updateParameter(osc_connection, osc_message, osc_index));
+        if (userParameterData.isDisplayedValueDirty()) {
+          String path = userParameterData.getPathDisplayedValue();
+          oscHandler.addMessageToQueue(path, userParameterData.getDisplayedValue());
+          userParameterData.clearDisplayedValueDirty();
         }
+      }
+    });
+  }
+
+  public String getIndexString(int index) {
+    if (indexPaddingEnabled) return Math.padInt(this.indexPaddingCount, index);
+    return String.valueOf(index);
+  }
+
+  public void debugModeEnable(boolean enable) {
+    this.debug_mode_enabled = enable;
+  }
+
+  private void updateParameter(OscConnection oscConnection, OscMessage oscMessage, int osc_index) {
+    double message_value = -1;
+    try {
+      message_value = (double) oscMessage.getFloat(0); // First argument of message.
+    } catch (Exception e) {
+      host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT TYPE: for " + oscMessage.getAddressPattern() + ". Must be (float)");
     }
 
-    private void basicOscCallback(OscConnection oscConnection, OscMessage oscMessage) {
-        if (debug_mode_enabled){
-            host.println("osc message:" + oscMessage.getAddressPattern() + " : " + oscMessage.getArguments());
-        }
+    if (Double.compare(message_value, 0) < 0 || Double.compare(message_value, 1) > 0) {
+      host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT RANGE: for " + oscMessage.getAddressPattern() + ". Range: 0-1");
+      return;
     }
 
-    public void refresh() {
-        //Loop thru controls and determine if anything changed, update via osc if so...
-        for(int i=0;i<user_controls_count;i++){
-            Parameter control = user_controls.getControl(i);
-            double user_control_value = control.value().getAsDouble();
+    Parameter parameter = userControls.getControl(osc_index);
+    SettableRangedValue value = parameter.value();
+    double target_value = value.getAsDouble();
+    if (Double.compare(message_value, target_value) != 0) {
+      value.set(message_value);
+      UserParameterData userParameterData = userParameterDataList.get(osc_index);
+      userParameterData.setValue(message_value);
+      parameter.set(message_value);
 
-            if ( Double.compare(user_control_value, user_controls_values[i]) != 0  || user_controls_values_dirty[i] == true){
-                String target = this.osc_address + user_controls_targets[i];
-                osc_handler.addMessageToQueue(target, (float) user_control_value);
-                user_controls_values[i] = user_control_value;
-                user_controls_values_dirty[i] = false;
-            }
-        }
+      if (!send_values_after_received) {
+        userParameterData.clearValueDirty();
+      }
     }
 
-    public String getIndexString(int index){
-        if(index_padding_enabled) return Math.padInt(this.index_padding_count , index);
-        return String.valueOf(index);
+    if (this.debug_mode_enabled) {
+      host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + message_value);
     }
+  }
 
-    public void debugModeEnable(boolean enable){
-        this.debug_mode_enabled = enable;
-    }
+  public void setSendValuesAfterReceived(boolean b) {
+    send_values_after_received = b;
+  }
 
-    private void updateParameter(OscConnection oscConnection, OscMessage oscMessage, int osc_index) {
-        double message_value = -1;
-        try {
-            message_value = (double) oscMessage.getFloat(0); // First argument of message.
-        } catch (Exception e)  {
-            host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT TYPE: for " + oscMessage.getAddressPattern()  + ". Must be (float)" );
-        }
-
-        if (Double.compare(message_value, 0) < 0 || Double.compare(message_value, 1) > 0)  {
-            host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT RANGE: for " + oscMessage.getAddressPattern()  + ". Range: 0-1" );
-            return;
-        }
-
-        Parameter control = user_controls.getControl(osc_index);
-        SettableRangedValue value = control.value();
-        double target_value = value.getAsDouble();
-        if(Double.compare(message_value, target_value) != 0) {
-            value.set(message_value);
-            user_controls_values[osc_index] = message_value;
-
-            if(send_values_after_received) {
-                user_controls_values_dirty[osc_index] = true;
-            }
-        }
-
-        if (this.debug_mode_enabled) {
-            host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + message_value );
-        }
-    }
-
-    public void setOsc_address(String osc_address) {
-        this.osc_address = osc_address;
-        host.println("User Parameter Handler OSC TARGET: " + osc_address);
-    }
-
-    public void setSendValuesAfterReceived(boolean b){
-        send_values_after_received = b;
-    }
-
-    public void setDeadzoneEnabled(boolean b) {
-        deadzone_enabled = b;
-    }
+  private void setValuesOnlyMode(boolean b) {
+    valuesOnlyMode = b;
+  }
 }
