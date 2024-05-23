@@ -1,14 +1,20 @@
 # Remote OSC Extension For Bitwig
 This is a basic osc extension for bitwig that allows for many remote parameter mappings as you need. This source could also be used for writing a new extension with more features. If you do use it please drop me a message.
 
-#Whats New
-## 1.2 
+# Whats New
+
+## 1.2 Update
 
 ### Values Only Mode
 You can now choose between Values Only or have also displayed values and parameter names. Read further to find the paths to the new addresses.
 
-### No Midi Option (Default)
+### Touch OSC Example
+<img width="362" alt="image" src="https://github.com/kirkwoodwest/Bitwig-Remote-OSC/assets/6645471/7376de10-cf0b-4d08-a40d-3ccf64435ce5">
 
+
+### No Midi Option (Default)
+**Remote OSC**
+**Remote OSC + Midi**
 
 ## Up to 1024 User Parameters
 User Parameters are the right click mapped values.
@@ -29,8 +35,8 @@ User Parameters are the right click mapped values.
 
 ## Paths
 
-## Midi Remote
-This also includes a midi input which you can use for midi mapping as well. If you aren't using this feature just select any other device to fill it out and bitwig will be ok.
+## Midi Remote (Optional)
+This also includes a midi input which you can use for midi mapping as well. If you don't need this don't select it.
 
 ...
 
