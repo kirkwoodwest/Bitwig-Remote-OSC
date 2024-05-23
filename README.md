@@ -9,8 +9,8 @@ This is a basic osc extension for bitwig that allows for many remote parameter m
 You can now choose between Values Only or have also displayed values and parameter names. Read further to find the paths to the new addresses.
 
 ### Touch OSC Example
-<img width="362" alt="image" src="https://github.com/kirkwoodwest/Bitwig-Remote-OSC/assets/6645471/7376de10-cf0b-4d08-a40d-3ccf64435ce5">
-
+<img width="408" alt="image" src="https://github.com/kirkwoodwest/Bitwig-Remote-OSC/assets/6645471/4089648f-e620-4a75-b876-7a352e8287ce">
+https://github.com/kirkwoodwest/Bitwig-Remote-OSC/tree/main/Touch%20OSC
 
 ### No Midi Option (Default)
 **Remote OSC**
