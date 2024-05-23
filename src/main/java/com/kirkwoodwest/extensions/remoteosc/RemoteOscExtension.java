@@ -58,9 +58,10 @@ public class RemoteOscExtension extends GenericControllerExtension {
     Log.init(host);
 
     //Set up midi ports for mapping any midi data that you'd want in this same extension.
-    MidiIn input_port = host.getMidiInPort(0);
-    input_port.createNoteInput("RemoteOscInput","??????");
-
+    if(getExtensionDefinition().getNumMidiInPorts() > 0) {
+      MidiIn input_port = host.getMidiInPort(0);
+      input_port.createNoteInput("RemoteOscInput", "??????");
+    }
     String version = getExtensionDefinition().getVersion();
     host.println("\n-------------------------------------------");
     host.println("Remote OSC " + version + " Initializing...");

@@ -7,18 +7,18 @@ import com.bitwig.extension.controller.api.ControllerHost;
 
 import java.util.UUID;
 
-public class RemoteOscExtensionDefinition extends ControllerExtensionDefinition
+public class RemoteOscNoMidiExtensionDefinition extends RemoteOscExtensionDefinition
 {
-   private static final UUID DRIVER_ID = UUID.fromString("1c514402-b6f9-441d-896a-abb73eb61396");
+   private static final UUID DRIVER_ID = UUID.fromString("12514402-b6f9-441d-896a-abb73eb61396");
 
-   public RemoteOscExtensionDefinition()
+   public RemoteOscNoMidiExtensionDefinition()
    {
    }
 
    @Override
    public String getName()
    {
-      return "Remote OSC + Midi";
+      return "Remote OSC";
    }
    
    @Override
@@ -58,7 +58,7 @@ public class RemoteOscExtensionDefinition extends ControllerExtensionDefinition
    }
 
    @Override
-   public int getNumMidiInPorts() { return 1; }
+   public int getNumMidiInPorts() { return 0; }
 
    @Override
    public int getNumMidiOutPorts()

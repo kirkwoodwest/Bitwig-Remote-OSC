@@ -9,6 +9,7 @@
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/testscript/TestScriptExtension.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/hardware/HardwareBasic.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/testscript/TestScriptExtensionDefinition.java
+/Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/remoteosc/RemoteOscNoMidiExtensionDefinition.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/handlers/UserParameterHandler.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/utils/Midi.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/utils/Math.java
