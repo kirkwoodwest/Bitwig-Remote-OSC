@@ -1,17 +1,43 @@
 # Remote OSC Extension For Bitwig
 This is a basic osc extension for bitwig that allows for many remote parameter mappings as you need. This source could also be used for writing a new extension with more features. If you do use it please drop me a message.
 
-## Up to 1024 User Parameters
+# Whats New
 
-/user/0001/value
-/user/0002/value
+## 1.2 Update
+
+### Values Only Mode
+You can now choose between Values Only or have also displayed values and parameter names. Read further to find the paths to the new addresses.
+
+### Touch OSC Example
+<img width="408" alt="image" src="https://github.com/kirkwoodwest/Bitwig-Remote-OSC/assets/6645471/4089648f-e620-4a75-b876-7a352e8287ce">
+
+https://github.com/kirkwoodwest/Bitwig-Remote-OSC/tree/main/Touch%20OSC
+
+### No Midi Option (Default)
+**Remote OSC**
+**Remote OSC + Midi**
+
+## Up to 1024 User Parameters
+User Parameters are the right click mapped values.
+- `/user/0001/value` `,f`
+- `/user/0002/value` `,f` 
+
+### Standard Values Mode
+- `/user/0001/value` `,f`
+- `/user/0001/name` `,s`
+- `/user/0001/display_value` `,s`
+
+### Values Only mode
+- `/user/0001` `,f`
 
 ## VU Meters
-/track/1/vu/peak
-/track/1/vu/rms
+- `/track/1/vu/peak`
+- `/track/1/vu/rms`
 
-## Midi Remote
-This also includes a midi input which you can use for midi mapping as well. If you aren't using this feature just select any other device to fill it out and bitwig will be ok.
+## Paths
+
+## Midi Remote (Optional)
+This also includes a midi input which you can use for midi mapping as well. If you don't need this don't select it.
 
 ...
 
@@ -23,7 +49,8 @@ This also includes a midi input which you can use for midi mapping as well. If y
 - Index Zero Padding is to padd out the addresses so they appear in bitwig in order.
 - Send Values after received will resend the data back to your device after its set in Bitwig. (Careful this can cause feedback loops)
 
-![image](https://user-images.githubusercontent.com/6645471/211903550-d3d5e94d-3eac-446c-a915-407fd1e97527.png)
+<img width="657" alt="image" src="https://github.com/kirkwoodwest/Bitwig-Remote-OSC/assets/6645471/7ab1799e-0c53-428a-bf16-cf6249c69f50">
+
 
 ### VU Meters
 - If you enable VU Meters, you'll have access to 8 VU Meters that follow a cursorTrack
