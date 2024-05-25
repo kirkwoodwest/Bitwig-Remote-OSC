@@ -44,77 +44,6 @@ public class OscPlaygroundExtension extends GenericControllerExtension {
   public void init() {
     host = getHost();
     Log.init(host);
-
-    String version = getExtensionDefinition().getVersion();
-    host.println("\n-------------------------------------------");
-    host.println("Remote OSC " + version + " Initializing...");
-
-    osc_handler = new OscHandler(host, true);
-
-    int USER_CONTROL_LIMIT = 1024;
-    {
-      String label = "Number Of User Controls";
-      final String  	category ="User Controls";
-      final double  	min_value = 1;
-      final double  	max_value = USER_CONTROL_LIMIT;
-      final double  	step_resolution = 1;
-      final String  	unit = "";
-      final double  	initial_value = 64;
-      setting_number_of_user_controls = host.getPreferences().getNumberSetting(label, category, 1, USER_CONTROL_LIMIT, step_resolution, unit, initial_value);
-    }
-
-    {
-      setting_target = host.getPreferences().getStringSetting("Osc Base target", "OSC Settings", 20, "/user/");
-      osc_target = setting_target.get();
-    }
-
-    {
-      setting_zero_pad = host.getPreferences().getBooleanSetting("Index Zero Padding (i.e. user/001, user/002)", "OSC Settings", false);
-      zero_pad = setting_zero_pad.get();
-    }
-
-    double number_user_controls =  setting_number_of_user_controls.get();
-    int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
-    if(user_controls_count<1) user_controls_count = 1;
-    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, true);
-
-    {
-      setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
-      setting_send_values_on_received.addValueObserver(this::settingSendValuesOnReceived);
-    }
-
-//    {
-//      setting_deadzone_enabled = host.getPreferences().getBooleanSetting("Deadzone Enabled", "OSC Settings", false);
-//      setting_deadzone_enabled.addValueObserver(this::settingDeadzoneEnabled);
-//    }
-
-
-
-    setting_restart = host.getPreferences().getSignalSetting("Changing OSC Settings Requires Restart...", "Restart","Restart");
-    setting_restart.addSignalObserver(this::settingRestart);
-
-    setting_debug_osc_in = host.getPreferences().getBooleanSetting("Debug Osc In", "Osc Debug", false);
-    setting_debug_osc_in.addValueObserver(this::settingDebugOscIn);
-
-    setting_debug_osc_out = host.getPreferences().getBooleanSetting("Debug Osc Out", "Osc Debug", false);
-    setting_debug_osc_out.addValueObserver(this::settingDebugOscOut);
-
-
-
-
-    user_parameter_handler.debugModeEnable(debug_osc_in);
-
-
-
-    CursorTrack cursor_track = host.createCursorTrack("cursor Track", "Cursor Track", 1, 1, true);
-    cursor_track.addVuMeterObserver(1023, -1,false, this::reportVu);
-
-
-    //Always rescan on init.
-    //If your reading this... I hope you say hello to a loved one today. <3
-
-    host.println("Complete.\n---");
-    host.showPopupNotification("Remote OSC " + version + " Initialized.");
   }
 
   private void reportVu(int i) {
@@ -163,10 +92,6 @@ public class OscPlaygroundExtension extends GenericControllerExtension {
   public void flush() {
     user_parameter_handler.refresh();
     osc_handler.sendQueue();
-  }
-
-  @Override
-  public void refreshControllerParams(String controllerID) {
   }
 
 }

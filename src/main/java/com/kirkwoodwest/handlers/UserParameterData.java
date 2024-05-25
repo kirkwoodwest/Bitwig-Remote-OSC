@@ -11,6 +11,7 @@ public class UserParameterData {
   private final String pathDisplayedValue;
   private String name;
   private Double value;
+  private Integer valueInt;
   private String displayedValue;
 
   private boolean nameIsDirty = false;
@@ -46,6 +47,14 @@ public class UserParameterData {
 
   public Double getValue() {
     return value;
+  }
+
+  public void setValueInt(int value) {
+    valueInt = value;
+  }
+
+  public int getValueInt() {
+    return valueInt;
   }
 
   public String getDisplayedValue() {

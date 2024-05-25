@@ -13,10 +13,6 @@ import com.kirkwoodwest.utils.Log;
 import com.kirkwoodwest.utils.Math;
 import com.kirkwoodwest.utils.osc.OscHandler;
 
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-
 public class RemoteOscExtension extends GenericControllerExtension {
   //Class Variables
   private ControllerHost host;
@@ -45,7 +41,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
   private SettableBooleanValue setting_vu_meter_peak;
   private SettableBooleanValue setting_vu_meter_rms;
   private SettableBooleanValue setting_values_only_mode;
-
+  private SettableEnumValue dataResolutionSetting;
+  private DataResolution dataResolution;
 
 
   protected RemoteOscExtension(final RemoteOscExtensionDefinition definition, final ControllerHost host) {
@@ -91,6 +88,11 @@ public class RemoteOscExtension extends GenericControllerExtension {
     }
 
     {
+      dataResolutionSetting = host.getPreferences().getEnumSetting("Data Resolution", "Data Resolution", DataResolutionEnum.getValues(), DataResolutionEnum.getValueText(0));
+      dataResolution = DataResolutionEnum.getResolutionFor(dataResolutionSetting.get());
+    }
+
+    {
       setting_values_only_mode = host.getPreferences().getBooleanSetting("Values Only Mode", "OSC Settings", true);
       values_only = setting_values_only_mode.get();
     }
@@ -98,7 +100,7 @@ public class RemoteOscExtension extends GenericControllerExtension {
     double number_user_controls =  setting_number_of_user_controls.get();
     int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
     if(user_controls_count<1) user_controls_count = 1;
-    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, values_only);
+    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, values_only, dataResolution);
 
     {
       setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);

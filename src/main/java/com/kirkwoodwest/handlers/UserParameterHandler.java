@@ -3,11 +3,15 @@ package com.kirkwoodwest.handlers;
 import com.bitwig.extension.api.opensoundcontrol.OscConnection;
 import com.bitwig.extension.api.opensoundcontrol.OscMessage;
 import com.bitwig.extension.controller.api.*;
+import com.kirkwoodwest.extensions.remoteosc.DataResolution;
+import com.kirkwoodwest.extensions.remoteosc.DataResolutionEnum;
 import com.kirkwoodwest.utils.Math;
 import com.kirkwoodwest.utils.osc.OscHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.kirkwoodwest.extensions.remoteosc.DataResolution.*;
 
 public class UserParameterHandler {
   private final OscHandler oscHandler;
@@ -26,14 +30,18 @@ public class UserParameterHandler {
   private boolean indexPaddingEnabled;
   private int indexPaddingCount;
   private boolean valuesOnlyMode = true;
+  private final DataResolution dataResolution;
 
-  public UserParameterHandler(ControllerHost host, OscHandler oscHandler, int numUserControls, String oscPath, boolean indexPaddingEnabled, boolean valuesOnlyMode) {
+
+
+  public UserParameterHandler(ControllerHost host, OscHandler oscHandler, int numUserControls, String oscPath, boolean indexPaddingEnabled, boolean valuesOnlyMode, DataResolution dataResolution) {
     this.oscHandler = oscHandler;
     this.host = host;
     this.userControlsCount = numUserControls;
     this.oscAddress = oscPath;
     this.indexPaddingEnabled = indexPaddingEnabled;
     this.valuesOnlyMode = valuesOnlyMode;
+    this.dataResolution = dataResolution;
 
     if (indexPaddingEnabled) {
       this.indexPaddingCount = 4;
@@ -67,11 +75,11 @@ public class UserParameterHandler {
     //Loop thru controls and determine if anything changed, update via osc if so...
 
     userParameterDataList.forEach(userParameterData -> {
+      //Value
       if (userParameterData.isValueDirty()) {
-        String path = userParameterData.getPathValue();
-        oscHandler.addMessageToQueue(path, userParameterData.getValue().floatValue());
-        userParameterData.clearValueDirty();
+        updateValue(userParameterData);
       }
+
       if(!valuesOnlyMode){
         if (userParameterData.isNameDirty()) {
           String path = userParameterData.getPathName();
@@ -97,27 +105,28 @@ public class UserParameterHandler {
     this.debug_mode_enabled = enable;
   }
 
-  private void updateParameter(OscConnection oscConnection, OscMessage oscMessage, int osc_index) {
-    double message_value = -1;
+  private void updateParameter(OscConnection oscConnection, OscMessage oscMessage, int oscIndex) {
+    double messageValue = -1;
     try {
-      message_value = (double) oscMessage.getFloat(0); // First argument of message.
+      messageValue = (double) oscMessage.getFloat(0); // First argument of message.
     } catch (Exception e) {
       host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT TYPE: for " + oscMessage.getAddressPattern() + ". Must be (float)");
     }
 
-    if (Double.compare(message_value, 0) < 0 || Double.compare(message_value, 1) > 0) {
+    if (Double.compare(messageValue, 0) < 0 || Double.compare(messageValue, 1) > 0) {
       host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT RANGE: for " + oscMessage.getAddressPattern() + ". Range: 0-1");
       return;
     }
 
-    Parameter parameter = userControls.getControl(osc_index);
+    Parameter parameter = userControls.getControl(oscIndex);
     SettableRangedValue value = parameter.value();
-    double target_value = value.getAsDouble();
-    if (Double.compare(message_value, target_value) != 0) {
-      value.set(message_value);
-      UserParameterData userParameterData = userParameterDataList.get(osc_index);
-      userParameterData.setValue(message_value);
-      parameter.set(message_value);
+    double parameterValue = value.getAsDouble();
+    if (Double.compare(messageValue, parameterValue) != 0) {
+      value.set(messageValue);
+      //set up integer values... 127,1023, 16383
+      UserParameterData userParameterData = userParameterDataList.get(oscIndex);
+      userParameterData.setValue(messageValue);
+      parameter.set(messageValue);
 
       if (!send_values_after_received) {
         userParameterData.clearValueDirty();
@@ -125,8 +134,52 @@ public class UserParameterHandler {
     }
 
     if (this.debug_mode_enabled) {
-      host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + message_value);
+      host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValue);
     }
+  }
+
+  public void updateValue(UserParameterData userParameterData) {
+    String path = userParameterData.getPathValue();
+    switch (dataResolution) {
+      case FLOAT:
+        oscHandler.addMessageToQueue(path, userParameterData.getValue().floatValue());
+        break;
+      default:
+        int v = toInt(userParameterData.getValue());
+        oscHandler.addMessageToQueue(path, v);
+        break;
+    }
+    userParameterData.clearValueDirty();
+  }
+
+  private int toInt(Double value) {
+    switch (dataResolution) {
+      case INT127:
+        return (int) java.lang.Math.round(value * 127);
+      case INT1023:
+        return (int) java.lang.Math.round(value * 1023);
+      case INT16383:
+        return (int) java.lang.Math.round(value * 16383);
+      default:
+        return 0;
+    }
+  }
+
+  private double toDouble(int value) {
+    switch (dataResolution) {
+      case INT127:
+        if(value == 64) return 0.5;
+        return value / 127.0;
+      case INT1023:
+        if(value == 512) return 0.5;
+        return value / 1023.0;
+      case INT16383:
+        if(value == 8192) return 0.5;
+        return value / 16383.0;
+      default:
+        return 0;
+    }
+
   }
 
   public void setSendValuesAfterReceived(boolean b) {
