@@ -4,14 +4,11 @@ import com.bitwig.extension.api.opensoundcontrol.OscConnection;
 import com.bitwig.extension.api.opensoundcontrol.OscMessage;
 import com.bitwig.extension.controller.api.*;
 import com.kirkwoodwest.extensions.remoteosc.DataResolution;
-import com.kirkwoodwest.extensions.remoteosc.DataResolutionEnum;
 import com.kirkwoodwest.utils.Math;
 import com.kirkwoodwest.utils.osc.OscHandler;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.kirkwoodwest.extensions.remoteosc.DataResolution.*;
 
 public class UserParameterHandler {
   private final OscHandler oscHandler;
@@ -106,18 +103,64 @@ public class UserParameterHandler {
   }
 
   private void updateParameter(OscConnection oscConnection, OscMessage oscMessage, int oscIndex) {
-    double messageValue = -1;
-    try {
-      messageValue = (double) oscMessage.getFloat(0); // First argument of message.
-    } catch (Exception e) {
-      host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT TYPE: for " + oscMessage.getAddressPattern() + ". Must be (float)");
+
+    switch (dataResolution) {
+      case FLOAT:
+        double messageValue = 0.0;
+        try {
+          messageValue = (double) oscMessage.getFloat(0); // First argument of message.
+        } catch (Exception e) {
+          host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT TYPE: for " + oscMessage.getAddressPattern() + ". Must be (float)");
+        }
+
+        if (Double.compare(messageValue, 0) < 0 || Double.compare(messageValue, 1) > 0) {
+          host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT RANGE: for " + oscMessage.getAddressPattern() + ". Range: 0-1");
+          return;
+        }
+
+        updateParameterFloat(messageValue, oscIndex);
+
+
+        if (this.debug_mode_enabled) {
+          host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValue);
+        }
+        break;
+      default:
+        int messageValueInt = oscMessage.getInt(0);
+        updateParameterInt(messageValueInt, oscIndex);
+        if (this.debug_mode_enabled) {
+          host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValueInt);
+        }
+        break;
     }
 
-    if (Double.compare(messageValue, 0) < 0 || Double.compare(messageValue, 1) > 0) {
-      host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT RANGE: for " + oscMessage.getAddressPattern() + ". Range: 0-1");
-      return;
+  }
+
+  private void updateParameterInt(int messageValueInt, int oscIndex) {
+    //Compare against current value
+    UserParameterData userParameterData = userParameterDataList.get(oscIndex);
+    if(messageValueInt != userParameterDataList.get(oscIndex).getValueInt()){
+      //set up integer values... 127,1023, 16383
+
+      //limit the range
+      int valueLimited = minMaxInt(messageValueInt);
+      //Convert to double
+      double messageValue = toDouble(valueLimited);
+      //set to parameter
+      Parameter parameter = userControls.getControl(oscIndex);
+      SettableRangedValue value = parameter.value();
+      value.set(messageValue);
+
+      userParameterData.setValueInt(valueLimited);
+      if (!send_values_after_received) {
+        userParameterData.clearValueDirty();
+      }
+
     }
 
+  }
+
+  private void updateParameterFloat(double messageValue, int oscIndex) {
     Parameter parameter = userControls.getControl(oscIndex);
     SettableRangedValue value = parameter.value();
     double parameterValue = value.getAsDouble();
@@ -133,9 +176,6 @@ public class UserParameterHandler {
       }
     }
 
-    if (this.debug_mode_enabled) {
-      host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValue);
-    }
   }
 
   public void updateValue(UserParameterData userParameterData) {
@@ -164,6 +204,20 @@ public class UserParameterHandler {
         return 0;
     }
   }
+
+  private int minMaxInt(int value){
+    switch (dataResolution) {
+      case INT127:
+        return Math.valueLimit(value, 0, 127);
+      case INT1023:
+        return Math.valueLimit(value, 0, 1023);
+      case INT16383:
+        return Math.valueLimit(value, 0, 16383);
+      default:
+        return 0;
+    }
+  }
+
 
   private double toDouble(int value) {
     switch (dataResolution) {

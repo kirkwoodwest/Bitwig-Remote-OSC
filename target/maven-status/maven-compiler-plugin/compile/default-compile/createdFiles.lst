@@ -9,9 +9,12 @@ com/kirkwoodwest/utils/Array.class
 com/kirkwoodwest/extensions/oscplayground/OscPlaygroundExtension.class
 com/kirkwoodwest/extensions/testscript/TestScriptExtension.class
 com/kirkwoodwest/utils/Log.class
+com/kirkwoodwest/extensions/remoteosc/DataResolutionEnum.class
+com/kirkwoodwest/handlers/UserParameterHandler$1.class
 com/kirkwoodwest/utils/osc/OscHandler.class
 com/kirkwoodwest/extensions/remoteosc/RemoteOscExtension.class
 com/kirkwoodwest/handlers/UserParameterData.class
+com/kirkwoodwest/extensions/remoteosc/DataResolution.class
 com/kirkwoodwest/handlers/VUMeterBank.class
 com/kirkwoodwest/hardware/HardwareBasic.class
 com/kirkwoodwest/extensions/testscript/TestScriptExtensionDefinition.class
