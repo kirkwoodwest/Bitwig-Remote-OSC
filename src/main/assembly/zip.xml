@@ -16,9 +16,9 @@
     </fileSet>
     <fileSet>
       <directory>Touch OSC</directory>
-      <outputDirectory>/resources</outputDirectory>
+      <outputDirectory>/Touch OSC</outputDirectory>
       <includes>
-        <include>**/*.touchosc</include>
+        <include>**/*.tosc</include>
       </includes>
     </fileSet>
   </fileSets>
