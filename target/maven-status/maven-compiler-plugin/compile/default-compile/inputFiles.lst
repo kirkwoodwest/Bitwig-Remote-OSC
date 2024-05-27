@@ -6,9 +6,11 @@
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/handlers/VUMeterBank.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/utils/Log.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/remoteosc/RemoteOscExtensionDefinition.java
+/Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/remoteosc/DataResolutionEnum.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/testscript/TestScriptExtension.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/hardware/HardwareBasic.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/testscript/TestScriptExtensionDefinition.java
+/Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/remoteosc/DataResolution.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/extensions/remoteosc/RemoteOscNoMidiExtensionDefinition.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/handlers/UserParameterHandler.java
 /Users/kirkwoodwest/Documents/Programming/Bitwig Extensions/Bitwig-Remote-OSC/src/main/java/com/kirkwoodwest/utils/Midi.java
