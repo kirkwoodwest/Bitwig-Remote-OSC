@@ -9,10 +9,10 @@ public class UserParameterData {
   private final String pathValue;
   private final String pathName;
   private final String pathDisplayedValue;
-  private String name;
-  private Double value;
-  private Integer valueInt;
-  private String displayedValue;
+  private String name = "";
+  private Double value = 0.0;
+  private Integer valueInt = 0;
+  private String displayedValue = "";
 
   private boolean nameIsDirty = false;
   private boolean valueIsDirty = false;

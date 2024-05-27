@@ -104,7 +104,7 @@ public class UserParameterHandler {
 
   private void updateParameter(OscConnection oscConnection, OscMessage oscMessage, int oscIndex) {
 
-    switch (dataResolution) {
+    switch (this.dataResolution) {
       case FLOAT:
         double messageValue = 0.0;
         try {

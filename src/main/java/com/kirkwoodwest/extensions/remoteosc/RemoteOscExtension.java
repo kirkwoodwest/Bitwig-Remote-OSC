@@ -87,25 +87,25 @@ public class RemoteOscExtension extends GenericControllerExtension {
       zero_pad = setting_zero_pad.get();
     }
 
-    {
-      dataResolutionSetting = host.getPreferences().getEnumSetting("Data Resolution", "Data Resolution", DataResolutionEnum.getValues(), DataResolutionEnum.getValueText(0));
-      dataResolution = DataResolutionEnum.getResolutionFor(dataResolutionSetting.get());
-    }
+
 
     {
       setting_values_only_mode = host.getPreferences().getBooleanSetting("Values Only Mode", "OSC Settings", true);
       values_only = setting_values_only_mode.get();
     }
 
-    double number_user_controls =  setting_number_of_user_controls.get();
-    int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
-    if(user_controls_count<1) user_controls_count = 1;
-    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, values_only, dataResolution);
 
     {
       setting_send_values_on_received = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
       setting_send_values_on_received.addValueObserver(this::settingSendValuesOnReceived);
     }
+
+
+    {
+      dataResolutionSetting = host.getPreferences().getEnumSetting("Data Resolution", "OSC Settings", DataResolutionEnum.getValues(), DataResolutionEnum.getValueText(0));
+      dataResolution = DataResolutionEnum.getResolutionFor(dataResolutionSetting.get());
+    }
+
 
     setting_restart = host.getPreferences().getSignalSetting("Changing OSC Settings Requires Restart...", "Restart","Restart");
     setting_restart.addSignalObserver(this::settingRestart);
@@ -123,6 +123,12 @@ public class RemoteOscExtension extends GenericControllerExtension {
 
     setting_vu_meter_rms = host.getPreferences().getBooleanSetting("VU Meter RMS Enabled", "VU Meter", false);
     setting_vu_meter_rms.addValueObserver(this::settingVuMeterRmsOutput);
+
+    double number_user_controls =  setting_number_of_user_controls.get();
+    int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
+    if(user_controls_count<1) user_controls_count = 1;
+    user_parameter_handler = new UserParameterHandler(host, osc_handler, user_controls_count, osc_target, zero_pad, values_only, dataResolution);
+
 
     user_parameter_handler.debugModeEnable(debug_osc_in);
 
