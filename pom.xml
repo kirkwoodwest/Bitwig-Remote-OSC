@@ -6,7 +6,7 @@
 	<artifactId>RemoteOsc</artifactId>
 	<packaging>jar</packaging>
 	<name>Remote OSC</name>
-	<version>1.3</version>
+	<version>1.3.1</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
