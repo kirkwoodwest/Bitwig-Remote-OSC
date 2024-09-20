@@ -68,5 +68,6 @@ In the Bitwig Studio I/O panel there is a cursor track which you can use to set 
 
 ---
 Thanks to Reframinator for helping to design and test this extension. Check out his youtube channel. https://www.youtube.com/@Reframinator
+Special thanks to some of the testers of this extension and reporting issues. I'm looking at you jdag!
 
 Also bigups to #controllerism on the Bitwig Discord Server and Moss for helping to inspire the Bitwig API Community.
