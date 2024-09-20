@@ -51,7 +51,7 @@ public class UserParameterHandler {
       final int osc_index = i;
       Parameter parameter = userControls.getControl(i);
       String index_string = getIndexString(i);
-      String path = oscPath + index_string;
+      String path = oscPath + "/" + index_string;
 
       UserParameterData userParameterData = new UserParameterData(parameter, "", 0.0, "", path, valuesOnlyMode);
       userParameterDataList.add(userParameterData);

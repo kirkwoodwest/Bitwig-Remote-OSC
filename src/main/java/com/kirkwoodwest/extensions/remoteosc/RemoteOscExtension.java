@@ -73,7 +73,7 @@ public class RemoteOscExtension extends GenericControllerExtension {
     }
 
     {
-      settingOscPath = host.getPreferences().getStringSetting("Osc Base Path", "OSC Settings", 20, "/user/");
+      settingOscPath = host.getPreferences().getStringSetting("Osc Base Path", "OSC Settings", 20, "/user");
     }
 
     {
@@ -86,12 +86,10 @@ public class RemoteOscExtension extends GenericControllerExtension {
       settingValuesOnlyMode.markInterested();
     }
 
-
     {
       settingSendValues = host.getPreferences().getBooleanSetting("Send Values After Received", "OSC Settings", false);
       settingSendValues.addValueObserver(this::settingSendValuesOnReceived);
     }
-
 
     {
       dataResolutionSetting = host.getPreferences().getEnumSetting("Data Resolution", "OSC Settings", DataResolutionEnum.getValues(), DataResolutionEnum.getValueText(0));
