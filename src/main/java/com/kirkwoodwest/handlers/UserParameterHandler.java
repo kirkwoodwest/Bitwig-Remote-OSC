@@ -11,24 +11,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserParameterHandler {
-  private final OscHandler oscHandler;
+  private final OscHandler     oscHandler;
   private final ControllerHost host;
 
   private final UserControlBank userControls;
-  private final int userControlsCount;
+  private final int             userControlsCount;
 
-  
+
   private final List<UserParameterData> userParameterDataList = new ArrayList<>();
 
   private boolean debug_mode_enabled;
-  private String oscAddress;
+  private String  oscAddress;
 
-  private boolean send_values_after_received = false;
-  private boolean indexPaddingEnabled;
-  private int indexPaddingCount;
-  private boolean valuesOnlyMode = true;
+  private       boolean        send_values_after_received = false;
+  private       boolean        indexPaddingEnabled;
+  private       int            indexPaddingCount;
+  private       boolean        valuesOnlyMode             = true;
   private final DataResolution dataResolution;
-
 
 
   public UserParameterHandler(ControllerHost host, OscHandler oscHandler, int numUserControls, String oscPath, boolean indexPaddingEnabled, boolean valuesOnlyMode, DataResolution dataResolution) {
@@ -48,10 +47,10 @@ public class UserParameterHandler {
     oscHandler.registerDefaultCallback(this::basicOscCallback);
 
     for (int i = 0; i < numUserControls; i++) {
-      final int osc_index = i;
-      Parameter parameter = userControls.getControl(i);
-      String index_string = getIndexString(i);
-      String path = oscPath + "/" + index_string;
+      final int osc_index    = i;
+      Parameter parameter    = userControls.getControl(i);
+      String    index_string = getIndexString(i);
+      String    path         = oscPath + "/" + index_string;
 
       UserParameterData userParameterData = new UserParameterData(parameter, "", 0.0, "", path, valuesOnlyMode);
       userParameterDataList.add(userParameterData);
@@ -77,7 +76,7 @@ public class UserParameterHandler {
         updateValue(userParameterData);
       }
 
-      if(!valuesOnlyMode){
+      if (!valuesOnlyMode) {
         if (userParameterData.isNameDirty()) {
           String path = userParameterData.getPathName();
           oscHandler.addMessageToQueue(path, userParameterData.getName());
@@ -103,43 +102,40 @@ public class UserParameterHandler {
   }
 
   private void updateParameter(OscConnection oscConnection, OscMessage oscMessage, int oscIndex) {
+    if (oscMessage.getTypeTag().equals(",f")) {
+      double messageValue = 0.0;
+      try {
+        messageValue = (double) oscMessage.getFloat(0); // First argument of message.
+      } catch (Exception e) {
+        host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT TYPE: for " + oscMessage.getAddressPattern() + ". Must be (float)");
+      }
 
-    switch (this.dataResolution) {
-      case FLOAT:
-        double messageValue = 0.0;
-        try {
-          messageValue = (double) oscMessage.getFloat(0); // First argument of message.
-        } catch (Exception e) {
-          host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT TYPE: for " + oscMessage.getAddressPattern() + ". Must be (float)");
-        }
+      if (Double.compare(messageValue, 0) < 0 || Double.compare(messageValue, 1) > 0) {
+        host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT RANGE: for " + oscMessage.getAddressPattern() + ". Range: 0-1");
+        return;
+      }
 
-        if (Double.compare(messageValue, 0) < 0 || Double.compare(messageValue, 1) > 0) {
-          host.println("OSC IN: " + oscMessage.getAddressPattern() + " INCORRECT RANGE: for " + oscMessage.getAddressPattern() + ". Range: 0-1");
-          return;
-        }
-
-        updateParameterFloat(messageValue, oscIndex);
+      updateParameterFloat(messageValue, oscIndex);
 
 
-        if (this.debug_mode_enabled) {
-          host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValue);
-        }
-        break;
-      default:
-        int messageValueInt = oscMessage.getInt(0);
-        updateParameterInt(messageValueInt, oscIndex);
-        if (this.debug_mode_enabled) {
-          host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValueInt);
-        }
-        break;
+      if (this.debug_mode_enabled) {
+        host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValue);
+      }
+
+    } else if (oscMessage.getTypeTag().equals(",i")) {
+      int messageValueInt = oscMessage.getInt(0);
+      updateParameterInt(messageValueInt, oscIndex);
+      if (this.debug_mode_enabled) {
+        host.println("OSC IN: " + oscMessage.getAddressPattern() + "  " + messageValueInt);
+      }
+
     }
-
   }
 
   private void updateParameterInt(int messageValueInt, int oscIndex) {
     //Compare against current value
     UserParameterData userParameterData = userParameterDataList.get(oscIndex);
-    if(messageValueInt != userParameterDataList.get(oscIndex).getValueInt()){
+    if (messageValueInt != userParameterDataList.get(oscIndex).getValueInt()) {
       //set up integer values... 127,1023, 16383
 
       //limit the range
@@ -147,8 +143,8 @@ public class UserParameterHandler {
       //Convert to double
       double messageValue = toDouble(valueLimited);
       //set to parameter
-      Parameter parameter = userControls.getControl(oscIndex);
-      SettableRangedValue value = parameter.value();
+      Parameter           parameter = userControls.getControl(oscIndex);
+      SettableRangedValue value     = parameter.value();
       value.set(messageValue);
 
       userParameterData.setValueInt(valueLimited);
@@ -161,9 +157,9 @@ public class UserParameterHandler {
   }
 
   private void updateParameterFloat(double messageValue, int oscIndex) {
-    Parameter parameter = userControls.getControl(oscIndex);
-    SettableRangedValue value = parameter.value();
-    double parameterValue = value.getAsDouble();
+    Parameter           parameter      = userControls.getControl(oscIndex);
+    SettableRangedValue value          = parameter.value();
+    double              parameterValue = value.getAsDouble();
     if (Double.compare(messageValue, parameterValue) != 0) {
       value.set(messageValue);
       //set up integer values... 127,1023, 16383
@@ -205,7 +201,7 @@ public class UserParameterHandler {
     }
   }
 
-  private int minMaxInt(int value){
+  private int minMaxInt(int value) {
     switch (dataResolution) {
       case INT127:
         return Math.valueLimit(value, 0, 127);
@@ -222,13 +218,13 @@ public class UserParameterHandler {
   private double toDouble(int value) {
     switch (dataResolution) {
       case INT127:
-        if(value == 64) return 0.5;
+        if (value == 64) return 0.5;
         return value / 127.0;
       case INT1023:
-        if(value == 512) return 0.5;
+        if (value == 512) return 0.5;
         return value / 1023.0;
       case INT16383:
-        if(value == 8192) return 0.5;
+        if (value == 8192) return 0.5;
         return value / 16383.0;
       default:
         return 0;

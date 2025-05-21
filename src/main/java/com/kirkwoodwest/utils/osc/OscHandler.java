@@ -45,7 +45,7 @@ public class OscHandler {
     this.failed_osc_setup = false;
     if (setup_preferences == true) {
       setting_port_in = host.getPreferences().getNumberSetting("port in", "OSC Settings", 8000,9999, 1, "" , 8010);
-      settting_address_out = host.getPreferences().getStringSetting("target address", "OSC Settings", 20, "192.168.0.1");
+      settting_address_out = host.getPreferences().getStringSetting("target address", "OSC Settings", 20, "127.0.0.1");
       setting_port_out = host.getPreferences().getNumberSetting("target port", "OSC Settings", 8000,9999, 1, "" , 8000);
 
       osc_in_port = (int) setting_port_in.getRaw();

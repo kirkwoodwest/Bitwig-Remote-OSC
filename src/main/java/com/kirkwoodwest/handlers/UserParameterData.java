@@ -14,9 +14,9 @@ public class UserParameterData {
   private Integer valueInt = 0;
   private String displayedValue = "";
 
-  private boolean nameIsDirty = false;
-  private boolean valueIsDirty = false;
-  private boolean displayedValueIsDirty = false;
+  private boolean nameIsDirty = true;
+  private boolean valueIsDirty = true;
+  private boolean displayedValueIsDirty = true;
 
   public UserParameterData(Parameter parameter, String name, Double value, String displayedValue, String path, boolean valuesOnlyMode) {
     this.parameter = parameter;

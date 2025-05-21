@@ -30,7 +30,7 @@ public class RemoteOscNoMidiExtensionDefinition extends RemoteOscExtensionDefini
    @Override
    public String getVersion()
    {
-      return "1.3.2";
+      return "1.3.4";
    }
 
    @Override

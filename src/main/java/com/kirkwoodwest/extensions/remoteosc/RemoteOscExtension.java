@@ -99,6 +99,9 @@ public class RemoteOscExtension extends GenericControllerExtension {
     setting_restart = host.getPreferences().getSignalSetting("Changing OSC Settings Requires Restart...", "Restart","Restart");
     setting_restart.addSignalObserver(this::settingRestart);
 
+    Signal settings_ping = host.getPreferences().getSignalSetting("Ping OSC Server", "Ping", "Ping");
+    settings_ping.addSignalObserver(this::pingOscServer);
+
     settingDebugOscIn = host.getPreferences().getBooleanSetting("Debug Osc In", "Osc Debug", false);
     settingDebugOscIn.addValueObserver(this::settingDebugOscIn);
 
@@ -116,7 +119,8 @@ public class RemoteOscExtension extends GenericControllerExtension {
     double number_user_controls =  settingNumberOfUserControls.get();
     int user_controls_count = (int) Math.map(number_user_controls,0,1,1,USER_CONTROL_LIMIT);
     if(user_controls_count<1) user_controls_count = 1;
-    userParameterHandler = new UserParameterHandler(host, oscHandler, user_controls_count, settingOscPath.get(), settingZeroPad.get(), settingValuesOnlyMode.get(), dataResolution);
+    userParameterHandler = new UserParameterHandler(host, oscHandler, user_controls_count, settingOscPath.get(),
+      settingZeroPad.get(), settingValuesOnlyMode.get(), dataResolution);
 
     userParameterHandler.debugModeEnable(settingDebugOscIn.get());
 
@@ -132,6 +136,10 @@ public class RemoteOscExtension extends GenericControllerExtension {
     } else {
       host.showPopupNotification("Remote OSC " + version + " Failed Init. Check OSC Settings and Log");
     }
+  }
+
+  private void pingOscServer() {
+    oscHandler.addMessageToQueue( "/ping", true);
   }
 
   private void settingVuMeterRmsOutput(boolean b) {
